@@ -175,14 +175,11 @@ the unmet need '{top_need}'.
             """
         )
 
-        st.success("""
-Recommended Actions
+        recommendations = get_recommendations(
+    top_need
+)
 
-• Develop targeted educational resources
+st.markdown("### **Recommended Actions**")
 
-• Identify patient storytelling opportunities
-
-• Explore future engagement programming
-
-• Monitor discussion trends over time
-        """)
+for item in recommendations:
+    st.write(f"• {item}")
