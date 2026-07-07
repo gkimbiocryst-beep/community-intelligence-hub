@@ -232,7 +232,7 @@ with tab1:
 )
 
 hae_top_theme = hae_themes.idxmax()
-    hae_top_theme = hae_themes.idxmax()
+
 
     hae_needs = (
     hae[
