@@ -1,8 +1,188 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
 # =====================================================
-# THERAPEUTIC AREA TABS
+# PAGE SETUP
 # =====================================================
 
+st.set_page_config(
+    page_title="Platform Intelligence",
+    page_icon="🌐",
+    layout="wide"
+)
+
+# =====================================================
+# LOAD DATA
+# =====================================================
+
+df = pd.read_csv("sample_posts.csv")
+
+# =====================================================
+# CLASSIFIERS
+# =====================================================
+
+def classify_theme(text):
+
+    text = str(text).lower()
+
+    if any(word in text for word in [
+        "insurance","copay","coverage",
+        "approval","denied","refill"
+    ]):
+        return "Access & Reimbursement"
+
+    elif any(word in text for word in [
+        "diagnosis","diagnosed",
+        "doctor","genetic testing"
+    ]):
+        return "Diagnosis Journey"
+
+    elif any(word in text for word in [
+        "nausea","side effect",
+        "reaction","stomach"
+    ]):
+        return "Treatment Limitations"
+
+    elif any(word in text for word in [
+        "orladeyo","treatment",
+        "medication","attacks"
+    ]):
+        return "Treatment Experience"
+
+    elif any(word in text for word in [
+        "daughter","caregiver",
+        "family","parent"
+    ]):
+        return "Caregiver Burden"
+
+    elif any(word in text for word in [
+        "awareness",
+        "education",
+        "rare disease day"
+    ]):
+        return "Disease Education"
+
+    else:
+        return "Other"
+
+
+def classify_unmet_need(text):
+
+    text = str(text).lower()
+
+    if any(word in text for word in [
+        "insurance",
+        "coverage",
+        "approval",
+        "copay",
+        "denied"
+    ]):
+        return "Access Barriers"
+
+    elif any(word in text for word in [
+        "diagnosis",
+        "diagnosed",
+        "doctor",
+        "genetic testing"
+    ]):
+        return "Healthcare System Friction"
+
+    elif any(word in text for word in [
+        "daughter",
+        "caregiver",
+        "family",
+        "parent"
+    ]):
+        return "Emotional Burden"
+
+    elif any(word in text for word in [
+        "nausea",
+        "side effect",
+        "reaction",
+        "stomach"
+    ]):
+        return "Treatment Limitations"
+
+    else:
+        return "Further Review Needed"
+
+
+def get_opportunity(unmet_need):
+
+    mapping = {
+
+        "Access Barriers":
+            "Access Support & Navigation",
+
+        "Healthcare System Friction":
+            "Diagnosis Awareness",
+
+        "Emotional Burden":
+            "Caregiver Support",
+
+        "Treatment Limitations":
+            "Treatment Education"
+
+    }
+
+    return mapping.get(
+        unmet_need,
+        "Further Review Needed"
+    )
+
+# =====================================================
+# CREATE COLUMNS
+# =====================================================
+
+df["theme"] = df["text"].apply(classify_theme)
+df["unmet_need"] = df["text"].apply(classify_unmet_need)
+
+# =====================================================
+# HEADER
+# =====================================================
+
+st.title("🌐 Platform Intelligence")
+
+st.caption(
+    "Understand how conversations differ across platforms and therapeutic areas"
+)
+
+# =====================================================
+# PLATFORM VOLUME CHART
+# =====================================================
+
+st.subheader("Conversation Volume by Platform")
+
+platform_counts = (
+    df["platform"]
+    .value_counts()
+    .reset_index()
+)
+
+platform_counts.columns = [
+    "Platform",
+    "Posts"
+]
+
+fig = px.bar(
+    platform_counts,
+    x="Platform",
+    y="Posts",
+    text="Posts",
+    color="Posts"
+)
+
+st.plotly_chart(
+    fig,
+    use_container_width=True
+)
+
 st.markdown("---")
+
+# =====================================================
+# TABS
+# =====================================================
 
 tab1, tab2 = st.tabs([
     "HAE",
@@ -10,18 +190,18 @@ tab1, tab2 = st.tabs([
 ])
 
 # =====================================================
-# HAE
+# HAE TAB
 # =====================================================
 
 with tab1:
 
     st.header("HAE Platform Intelligence")
 
+    rows = []
+
     hae_df = df[
         df["disease"] == "HAE"
     ]
-
-    rows = []
 
     for platform in sorted(
         hae_df["platform"].unique()
@@ -62,27 +242,23 @@ with tab1:
         )
 
         rows.append({
-
             "Platform": platform,
-
             "Posts": len(platform_df),
-
             "Top Theme": top_theme,
-
             "Top Unmet Need": top_need,
-
             "PE Opportunity":
                 get_opportunity(top_need)
-
         })
 
+    summary_df = pd.DataFrame(rows)
+
     st.dataframe(
-        pd.DataFrame(rows),
+        summary_df,
         use_container_width=True
     )
 
 # =====================================================
-# NETHERTON
+# NETHERTON TAB
 # =====================================================
 
 with tab2:
@@ -91,11 +267,11 @@ with tab2:
         "Netherton Syndrome Platform Intelligence"
     )
 
+    rows = []
+
     ns_df = df[
         df["disease"] == "Netherton Syndrome"
     ]
-
-    rows = []
 
     for platform in sorted(
         ns_df["platform"].unique()
@@ -136,21 +312,17 @@ with tab2:
         )
 
         rows.append({
-
             "Platform": platform,
-
             "Posts": len(platform_df),
-
             "Top Theme": top_theme,
-
             "Top Unmet Need": top_need,
-
             "PE Opportunity":
                 get_opportunity(top_need)
-
         })
 
+    summary_df = pd.DataFrame(rows)
+
     st.dataframe(
-        pd.DataFrame(rows),
+        summary_df,
         use_container_width=True
     )
