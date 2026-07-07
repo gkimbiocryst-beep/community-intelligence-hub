@@ -2,9 +2,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# =====================================================
+# ---------------------------------------------------------
 # PAGE SETUP
-# =====================================================
+# ---------------------------------------------------------
 
 st.set_page_config(
     page_title="Social Media Listening Hub",
@@ -12,21 +12,20 @@ st.set_page_config(
     layout="wide"
 )
 
-# =====================================================
+# ---------------------------------------------------------
 # LOAD DATA
-# =====================================================
+# ---------------------------------------------------------
 
 df = pd.read_csv("sample_posts.csv")
 
-# =====================================================
+# ---------------------------------------------------------
 # THEME CLASSIFIER
-# =====================================================
+# ---------------------------------------------------------
 
 def classify_theme(text):
 
     text = str(text).lower()
 
-    # ACCESS & REIMBURSEMENT
     if any(word in text for word in [
         "insurance",
         "copay",
@@ -41,52 +40,39 @@ def classify_theme(text):
     ]):
         return "Access & Reimbursement"
 
-    # DIAGNOSIS JOURNEY
     elif any(word in text for word in [
         "diagnosis",
         "diagnosed",
         "genetic testing",
         "doctor",
         "doctors",
-        "allergies",
         "misdiagnosed"
     ]):
         return "Diagnosis Journey"
 
-    # TREATMENT LIMITATIONS
     elif any(word in text for word in [
         "nausea",
         "stomach",
         "side effect",
-        "side effects",
         "reaction",
-        "rough",
-        "pain",
         "fatigue",
         "itch",
         "burning"
     ]):
         return "Treatment Limitations"
 
-    # TREATMENT EXPERIENCE
     elif any(word in text for word in [
         "orladeyo",
-        "pill",
-        "daily pill",
         "treatment",
         "medication",
         "prophylaxis",
         "attacks",
-        "swelling",
-        "attack-free",
-        "emergency kit"
+        "swelling"
     ]):
         return "Treatment Experience"
 
-    # CAREGIVER BURDEN
     elif any(word in text for word in [
         "daughter",
-        "son",
         "caregiver",
         "family",
         "parent",
@@ -95,22 +81,19 @@ def classify_theme(text):
     ]):
         return "Caregiver Burden"
 
-    # EDUCATION
     elif any(word in text for word in [
         "awareness",
-        "explaining",
-        "what is",
-        "rare disease day",
-        "education"
+        "education",
+        "rare disease day"
     ]):
         return "Disease Education"
 
     else:
         return "Other"
 
-# =====================================================
+# ---------------------------------------------------------
 # UNMET NEED CLASSIFIER
-# =====================================================
+# ---------------------------------------------------------
 
 def classify_unmet_need(text):
 
@@ -151,21 +134,11 @@ def classify_unmet_need(text):
         return "Treatment Limitations"
 
     else:
-        return "Education Gap"
+        return "Further Review Needed"
 
-# =====================================================
-# CREATE CLASSIFICATION COLUMNS
-# =====================================================
-
-df["theme"] = df["text"].apply(classify_theme)
-df["unmet_need"] = df["text"].apply(classify_unmet_need)
-
-hae = df[df["disease"] == "HAE"]
-ns = df[df["disease"] == "Netherton Syndrome"]
-
-# =====================================================
+# ---------------------------------------------------------
 # OPPORTUNITY MAPPING
-# =====================================================
+# ---------------------------------------------------------
 
 def get_opportunity(unmet_need):
 
@@ -181,12 +154,21 @@ def get_opportunity(unmet_need):
     elif unmet_need == "Treatment Limitations":
         return "Treatment Education"
 
-    else:
-        return "Patient Education"
+    return "Further Review Needed"
 
-# =====================================================
+# ---------------------------------------------------------
+# CREATE COLUMNS
+# ---------------------------------------------------------
+
+df["theme"] = df["text"].apply(classify_theme)
+df["unmet_need"] = df["text"].apply(classify_unmet_need)
+
+hae = df[df["disease"] == "HAE"]
+ns = df[df["disease"] == "Netherton Syndrome"]
+
+# ---------------------------------------------------------
 # HEADER
-# =====================================================
+# ---------------------------------------------------------
 
 st.title("Social Media Listening & Community Intelligence Hub")
 
@@ -194,11 +176,11 @@ st.caption(
     "Transforming patient conversations into actionable patient engagement insights"
 )
 
-# =====================================================
+# ---------------------------------------------------------
 # EXECUTIVE SUMMARY
-# =====================================================
+# ---------------------------------------------------------
 
-st.markdown("## Executive Summary")
+st.header("Executive Summary")
 
 c1, c2, c3, c4 = st.columns(4)
 
@@ -209,46 +191,47 @@ c4.metric("Platforms", df["platform"].nunique())
 
 st.markdown("---")
 
-# =====================================================
+# ---------------------------------------------------------
 # TABS
-# =====================================================
+# ---------------------------------------------------------
 
 tab1, tab2 = st.tabs(["HAE", "Netherton Syndrome"])
 
-# =====================================================
-# HAE
-# =====================================================
+# =========================================================
+# HAE TAB
+# =========================================================
 
 with tab1:
 
     hae_themes = (
-    hae[
-        ~hae["theme"].isin([
-            "Other",
-            "General Discussion"
-        ])
-    ]["theme"]
-    .value_counts()
-)
+        hae[
+            ~hae["theme"].isin(["Other"])
+        ]["theme"]
+        .value_counts()
+    )
 
-hae_top_theme = hae_themes.idxmax()
+    hae_needs = (
+        hae[
+            ~hae["unmet_need"].isin([
+                "Further Review Needed"
+            ])
+        ]["unmet_need"]
+        .value_counts()
+    )
 
+    hae_top_theme = (
+        hae_themes.idxmax()
+        if len(hae_themes) > 0
+        else "No Theme Identified"
+    )
 
-hae_needs = (
-    hae[
-        ~hae["unmet_need"].isin([
-            "Further Review Needed",
-            "Unknown",
-            "Education Gap"
-        ])
-    ]["unmet_need"]
-    .value_counts()
-)
+    hae_top_need = (
+        hae_needs.idxmax()
+        if len(hae_needs) > 0
+        else "No Unmet Need Identified"
+    )
 
-hae_top_need = hae_needs.idxmax()
-
-
-hae_opportunity = get_opportunity(
+    hae_opportunity = get_opportunity(
         hae_top_need
     )
 
@@ -258,7 +241,10 @@ hae_opportunity = get_opportunity(
 
     with left:
 
-        st.metric("Conversations", len(hae))
+        st.metric(
+            "Conversations",
+            len(hae)
+        )
 
         st.markdown(f"""
 ### **Top Theme**
@@ -282,7 +268,7 @@ hae_opportunity = get_opportunity(
             chart_df,
             values="Count",
             names="Theme",
-            hole=0.6,
+            hole=0.55,
             title="Theme Distribution"
         )
 
@@ -291,44 +277,39 @@ hae_opportunity = get_opportunity(
             use_container_width=True
         )
 
-    st.subheader("Conversation Sources")
-
-    st.bar_chart(
-        hae["platform"].value_counts()
-    )
-
-# =====================================================
-# NETHERTON
-# =====================================================
+# =========================================================
+# NETHERTON TAB
+# =========================================================
 
 with tab2:
 
     ns_themes = (
-    ns[
-        ~ns["theme"].isin([
-            "Other",
-            "General Discussion"
-        ])
-    ]["theme"]
-    .value_counts()
-)
-
-ns_top_theme = ns_themes.idxmax()
-
-    ns_top_theme = ns_themes.idxmax()
+        ns[
+            ~ns["theme"].isin(["Other"])
+        ]["theme"]
+        .value_counts()
+    )
 
     ns_needs = (
-    ns[
-        ~ns["unmet_need"].isin([
-            "Further Review Needed",
-            "Unknown",
-            "Education Gap"
-        ])
-    ]["unmet_need"]
-    .value_counts()
-)
+        ns[
+            ~ns["unmet_need"].isin([
+                "Further Review Needed"
+            ])
+        ]["unmet_need"]
+        .value_counts()
+    )
 
-ns_top_need = ns_needs.idxmax()
+    ns_top_theme = (
+        ns_themes.idxmax()
+        if len(ns_themes) > 0
+        else "No Theme Identified"
+    )
+
+    ns_top_need = (
+        ns_needs.idxmax()
+        if len(ns_needs) > 0
+        else "No Unmet Need Identified"
+    )
 
     ns_opportunity = get_opportunity(
         ns_top_need
@@ -340,7 +321,10 @@ ns_top_need = ns_needs.idxmax()
 
     with left:
 
-        st.metric("Conversations", len(ns))
+        st.metric(
+            "Conversations",
+            len(ns)
+        )
 
         st.markdown(f"""
 ### **Top Theme**
@@ -364,7 +348,7 @@ ns_top_need = ns_needs.idxmax()
             chart_df,
             values="Count",
             names="Theme",
-            hole=0.6,
+            hole=0.55,
             title="Theme Distribution"
         )
 
@@ -372,9 +356,3 @@ ns_top_need = ns_needs.idxmax()
             fig,
             use_container_width=True
         )
-
-    st.subheader("Conversation Sources")
-
-    st.bar_chart(
-        ns["platform"].value_counts()
-    )
