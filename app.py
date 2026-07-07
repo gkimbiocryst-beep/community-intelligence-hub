@@ -248,7 +248,7 @@ hae_needs = (
 hae_top_need = hae_needs.idxmax()
 
 
-    hae_opportunity = get_opportunity(
+hae_opportunity = get_opportunity(
         hae_top_need
     )
 
