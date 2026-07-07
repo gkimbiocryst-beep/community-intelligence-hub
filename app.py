@@ -234,7 +234,7 @@ with tab1:
 hae_top_theme = hae_themes.idxmax()
 
 
-    hae_needs = (
+hae_needs = (
     hae[
         ~hae["unmet_need"].isin([
             "Further Review Needed",
