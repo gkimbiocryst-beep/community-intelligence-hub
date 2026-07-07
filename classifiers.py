@@ -2,41 +2,50 @@ def classify_theme(text):
 
     text = str(text).lower()
 
-    # Access
+    # ACCESS
     if any(word in text for word in [
-        "insurance","copay","coverage",
-        "prior auth","approval","cost"
+        "insurance",
+        "copay",
+        "coverage",
+        "prior auth",
+        "approval",
+        "refill",
+        "access"
     ]):
         return "Access & Reimbursement"
 
-    # Diagnosis
+    # DIAGNOSIS
     elif any(word in text for word in [
-        "diagnosis","diagnosed",
-        "doctor","allergies",
-        "genetic testing"
+        "diagnosis",
+        "diagnosed",
+        "genetic testing",
+        "doctor",
+        "allergies",
+        "misdiagnosed"
     ]):
         return "Diagnosis Journey"
 
-    # Treatment
+    # SIDE EFFECTS
+    elif any(word in text for word in [
+        "nausea",
+        "stomach",
+        "side effect",
+        "reaction"
+    ]):
+        return "Treatment Limitations"
+
+    # TREATMENT EXPERIENCE
     elif any(word in text for word in [
         "orladeyo",
         "pill",
         "treatment",
         "medication",
-        "prophylaxis"
+        "prophylaxis",
+        "attacks"
     ]):
         return "Treatment Experience"
 
-    # Side effects
-    elif any(word in text for word in [
-        "nausea",
-        "side effect",
-        "stomach issues",
-        "reaction"
-    ]):
-        return "Treatment Limitations"
-
-    # Caregiver
+    # CAREGIVER
     elif any(word in text for word in [
         "daughter",
         "caregiver",
@@ -45,15 +54,14 @@ def classify_theme(text):
     ]):
         return "Caregiver Burden"
 
-    # Education
+    # EDUCATION
     elif any(word in text for word in [
         "awareness",
         "explaining",
         "what is",
-        "learn"
+        "rare disease day"
     ]):
         return "Disease Education"
 
     else:
         return "Other"
-``
