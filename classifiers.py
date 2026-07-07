@@ -86,3 +86,37 @@ def classify_theme(text):
 
     else:
         return "Other"
+
+def get_recommendations(unmet_need):
+
+    recommendations = {
+
+        "Access Barriers": [
+            "Provide reimbursement education resources",
+            "Include navigation content in patient events",
+            "Develop access-focused patient support materials"
+        ],
+
+        "Healthcare System Friction": [
+            "Develop diagnosis journey resources",
+            "Support disease awareness initiatives",
+            "Create healthcare provider education materials"
+        ],
+
+        "Emotional Burden": [
+            "Expand caregiver support programming",
+            "Facilitate peer-to-peer storytelling",
+            "Create emotional wellness resources"
+        ],
+
+        "Treatment Limitations": [
+            "Gather patient treatment experience feedback",
+            "Develop expectation-setting content",
+            "Explore unmet treatment burden themes"
+        ]
+    }
+
+    return recommendations.get(
+        unmet_need,
+        ["Further review needed"]
+    )
