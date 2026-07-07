@@ -171,10 +171,10 @@ ns = df[df["disease"] == "Netherton Syndrome"]
 # HEADER
 # ---------------------------------------------------------
 
-st.title("Social Media Listening & Community Intelligence Hub")
+st.title("Social Media Listening Hub")
 
 st.caption(
-    "Transforming patient conversations into actionable patient engagement insights"
+    "Transforming patient conversations in social media space to patient engagement insights"
 )
 
 # ---------------------------------------------------------
