@@ -174,7 +174,7 @@ ns = df[df["disease"] == "Netherton Syndrome"]
 st.title("Social Media Listening Hub")
 
 st.caption(
-    "Transforming patient conversations in social media space to patient engagement insights"
+    "Collecting patient conversations in social media space to patient engagement insights"
 )
 
 # ---------------------------------------------------------
