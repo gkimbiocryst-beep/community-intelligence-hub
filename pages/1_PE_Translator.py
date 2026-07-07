@@ -1,26 +1,33 @@
 import streamlit as st
 import pandas as pd
 
+# =====================================================
+# PAGE SETUP
+# =====================================================
+
 st.set_page_config(
     page_title="PE Translator",
     page_icon="🎯",
     layout="wide"
 )
 
+# =====================================================
+# LOAD DATA
+# =====================================================
+
 df = pd.read_csv("sample_posts.csv")
 
-# ==========================================
-# SAME CLASSIFICATION LOGIC AS DASHBOARD
-# ==========================================
+# =====================================================
+# THEME CLASSIFIER
+# =====================================================
 
 def classify_theme(text):
 
     text = str(text).lower()
 
     if any(word in text for word in [
-        "insurance","coverage",
-        "approval","copay",
-        "denied","refill"
+        "insurance","coverage","approval",
+        "copay","denied","refill"
     ]):
         return "Access & Reimbursement"
 
@@ -51,6 +58,9 @@ def classify_theme(text):
     else:
         return "Other"
 
+# =====================================================
+# UNMET NEED CLASSIFIER
+# =====================================================
 
 def classify_unmet_need(text):
 
@@ -58,7 +68,7 @@ def classify_unmet_need(text):
 
     if any(word in text for word in [
         "insurance","coverage",
-        "approval","copay"
+        "approval","copay","denied"
     ]):
         return "Access Barriers"
 
@@ -83,10 +93,14 @@ def classify_unmet_need(text):
     else:
         return "Further Review Needed"
 
+# =====================================================
+# PE OPPORTUNITIES
+# =====================================================
 
 def get_opportunity(unmet_need):
 
     mapping = {
+
         "Access Barriers":
             "Access Support & Navigation",
 
@@ -106,8 +120,54 @@ def get_opportunity(unmet_need):
     )
 
 
+# =====================================================
+# RECOMMENDATIONS
+# =====================================================
+
+def get_recommendations(unmet_need):
+
+    recommendations = {
+
+        "Access Barriers": [
+            "Provide reimbursement education resources",
+            "Create access-focused support materials",
+            "Address common insurance questions"
+        ],
+
+        "Healthcare System Friction": [
+            "Increase disease awareness initiatives",
+            "Develop diagnosis journey resources",
+            "Create provider education materials"
+        ],
+
+        "Emotional Burden": [
+            "Expand caregiver support programming",
+            "Create community storytelling opportunities",
+            "Support peer-to-peer engagement"
+        ],
+
+        "Treatment Limitations": [
+            "Gather patient treatment feedback",
+            "Develop expectation-setting resources",
+            "Address treatment burden concerns"
+        ]
+    }
+
+    return recommendations.get(
+        unmet_need,
+        ["Further review needed"]
+    )
+
+# =====================================================
+# CREATE COLUMNS
+# =====================================================
+
 df["theme"] = df["text"].apply(classify_theme)
 df["unmet_need"] = df["text"].apply(classify_unmet_need)
+
+# =====================================================
+# PAGE HEADER
+# =====================================================
 
 st.title("🎯 Patient Engagement Translator")
 
@@ -115,14 +175,17 @@ st.caption(
     "Transforms social listening insights into actionable patient engagement opportunities"
 )
 
-tabs = st.tabs([
-    "HAE",
-    "Netherton Syndrome"
-])
+# =====================================================
+# TABS
+# =====================================================
+
+tab1, tab2 = st.tabs(
+    ["HAE", "Netherton Syndrome"]
+)
 
 for disease, tab in zip(
     ["HAE", "Netherton Syndrome"],
-    tabs
+    [tab1, tab2]
 ):
 
     with tab:
@@ -147,11 +210,22 @@ for disease, tab in zip(
             .value_counts()
         )
 
-        top_theme = themes.idxmax()
+        if len(themes) == 0:
+            st.warning("No themes identified.")
+            continue
 
+        if len(needs) == 0:
+            st.warning("No unmet needs identified.")
+            continue
+
+        top_theme = themes.idxmax()
         top_need = needs.idxmax()
 
         opportunity = get_opportunity(
+            top_need
+        )
+
+        recommendations = get_recommendations(
             top_need
         )
 
@@ -168,18 +242,15 @@ for disease, tab in zip(
 
         st.info(
             f"""
-Based on current social listening activity,
-the most prominent discussion area is
-'{top_theme}', which is associated with
-the unmet need '{top_need}'.
-            """
+The dominant conversation theme is **{top_theme}**,
+which maps to the unmet need **{top_need}**.
+
+This suggests an opportunity in the area of
+**{opportunity}**.
+"""
         )
 
-        recommendations = get_recommendations(
-    top_need
-)
+        st.markdown("### **Recommended Actions**")
 
-st.markdown("### **Recommended Actions**")
-
-for item in recommendations:
-    st.write(f"• {item}")
+        for item in recommendations:
+            st.write(f"• {item}")
