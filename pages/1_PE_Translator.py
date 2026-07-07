@@ -1,121 +1,188 @@
 import streamlit as st
 import pandas as pd
 
-st.title("Patient Engagement Translator")
+st.set_page_config(
+    page_title="PE Translator",
+    page_icon="🎯",
+    layout="wide"
+)
 
 df = pd.read_csv("sample_posts.csv")
 
-# Split by disease
-hae = df[df["disease"] == "HAE"]
-ns = df[df["disease"] == "Netherton Syndrome"]
+# ==========================================
+# SAME CLASSIFICATION LOGIC AS DASHBOARD
+# ==========================================
 
-# Create two columns
-left, right = st.columns(2)
+def classify_theme(text):
 
-# --------------------
-# HAE
-# --------------------
-with left:
+    text = str(text).lower()
 
-    st.subheader("HAE")
+    if any(word in text for word in [
+        "insurance","coverage",
+        "approval","copay",
+        "denied","refill"
+    ]):
+        return "Access & Reimbursement"
 
-    st.metric("Posts", len(hae))
+    elif any(word in text for word in [
+        "diagnosis","diagnosed",
+        "doctor","genetic testing"
+    ]):
+        return "Diagnosis Journey"
 
-    st.markdown("### Top Insight")
+    elif any(word in text for word in [
+        "nausea","side effect",
+        "reaction","stomach"
+    ]):
+        return "Treatment Limitations"
 
-    hae_text = " ".join(
-        hae["text"].astype(str)
-    ).lower()
+    elif any(word in text for word in [
+        "orladeyo","treatment",
+        "medication","attacks"
+    ]):
+        return "Treatment Experience"
 
-    if "insurance" in hae_text:
-        theme = "Insurance / Access"
-        need = "Access Barriers"
-
-        action = """
-        - Improve reimbursement education
-        - Develop access resources
-        - Support navigation programs
-        """
-
-    elif "diagnosis" in hae_text:
-        theme = "Diagnosis Journey"
-        need = "Healthcare System Friction"
-
-        action = """
-        - Create diagnosis resources
-        - Increase disease awareness
-        - Support patient education
-        """
+    elif any(word in text for word in [
+        "daughter","caregiver",
+        "family","parent"
+    ]):
+        return "Caregiver Burden"
 
     else:
-        theme = "Treatment Experience"
-        need = "Education Gap"
+        return "Other"
 
-        action = """
-        - Develop educational content
-        - Share patient stories
-        """
 
-    st.info(f"""
-Theme: {theme}
+def classify_unmet_need(text):
 
-Unmet Need: {need}
-""")
+    text = str(text).lower()
 
-    st.markdown("**Recommended Actions**")
+    if any(word in text for word in [
+        "insurance","coverage",
+        "approval","copay"
+    ]):
+        return "Access Barriers"
 
-    st.markdown(action)
+    elif any(word in text for word in [
+        "diagnosis","diagnosed",
+        "doctor","genetic testing"
+    ]):
+        return "Healthcare System Friction"
 
-# --------------------
-# NETHERTON
-# --------------------
-with right:
+    elif any(word in text for word in [
+        "daughter","caregiver",
+        "family","parent"
+    ]):
+        return "Emotional Burden"
 
-    st.subheader("Netherton Syndrome")
-
-    st.metric("Posts", len(ns))
-
-    st.markdown("### Top Insight")
-
-    ns_text = " ".join(
-        ns["text"].astype(str)
-    ).lower()
-
-    if "diagnosis" in ns_text:
-        theme = "Diagnosis Journey"
-        need = "Healthcare System Friction"
-
-        action = """
-        - Increase provider awareness
-        - Improve diagnosis resources
-        - Support educational materials
-        """
-
-    elif "caregiver" in ns_text:
-        theme = "Caregiver Burden"
-        need = "Emotional Burden"
-
-        action = """
-        - Expand caregiver resources
-        - Develop peer support programs
-        - Share lived experiences
-        """
+    elif any(word in text for word in [
+        "nausea","side effect",
+        "stomach","reaction"
+    ]):
+        return "Treatment Limitations"
 
     else:
-        theme = "Treatment Experience"
-        need = "Treatment Limitations"
+        return "Further Review Needed"
 
-        action = """
-        - Gather treatment feedback
-        - Improve educational content
-        """
 
-    st.info(f"""
-Theme: {theme}
+def get_opportunity(unmet_need):
 
-Unmet Need: {need}
+    mapping = {
+        "Access Barriers":
+            "Access Support & Navigation",
+
+        "Healthcare System Friction":
+            "Diagnosis Awareness",
+
+        "Emotional Burden":
+            "Caregiver Support",
+
+        "Treatment Limitations":
+            "Treatment Education"
+    }
+
+    return mapping.get(
+        unmet_need,
+        "Further Review Needed"
+    )
+
+
+df["theme"] = df["text"].apply(classify_theme)
+df["unmet_need"] = df["text"].apply(classify_unmet_need)
+
+st.title("🎯 Patient Engagement Translator")
+
+st.caption(
+    "Transforms social listening insights into actionable patient engagement opportunities"
+)
+
+tabs = st.tabs([
+    "HAE",
+    "Netherton Syndrome"
+])
+
+for disease, tab in zip(
+    ["HAE", "Netherton Syndrome"],
+    tabs
+):
+
+    with tab:
+
+        disease_df = df[
+            df["disease"] == disease
+        ]
+
+        themes = (
+            disease_df[
+                ~disease_df["theme"].isin(["Other"])
+            ]["theme"]
+            .value_counts()
+        )
+
+        needs = (
+            disease_df[
+                ~disease_df["unmet_need"].isin([
+                    "Further Review Needed"
+                ])
+            ]["unmet_need"]
+            .value_counts()
+        )
+
+        top_theme = themes.idxmax()
+
+        top_need = needs.idxmax()
+
+        opportunity = get_opportunity(
+            top_need
+        )
+
+        st.markdown(f"""
+### **Top Theme**
+**{top_theme}**
+
+### **Top Unmet Need**
+**{top_need}**
+
+### **Patient Engagement Opportunity**
+**{opportunity}**
 """)
 
-    st.markdown("**Recommended Actions**")
+        st.info(
+            f"""
+Based on current social listening activity,
+the most prominent discussion area is
+'{top_theme}', which is associated with
+the unmet need '{top_need}'.
+            """
+        )
 
-    st.markdown(action)
+        st.success("""
+Recommended Actions
+
+• Develop targeted educational resources
+
+• Identify patient storytelling opportunities
+
+• Explore future engagement programming
+
+• Monitor discussion trends over time
+        """)
