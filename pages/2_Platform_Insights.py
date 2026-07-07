@@ -3,15 +3,19 @@ import pandas as pd
 import plotly.express as px
 
 st.set_page_config(
-    page_title="Platform Insights",
+    page_title="Platform Intelligence",
     page_icon="🌐",
     layout="wide"
 )
 
+# =====================================================
+# LOAD DATA
+# =====================================================
+
 df = pd.read_csv("sample_posts.csv")
 
 # =====================================================
-# SAME CLASSIFIER AS DASHBOARD
+# CLASSIFIERS
 # =====================================================
 
 def classify_theme(text):
@@ -20,7 +24,7 @@ def classify_theme(text):
 
     if any(word in text for word in [
         "insurance","copay","coverage",
-        "approval","refill","denied"
+        "approval","denied","refill"
     ]):
         return "Access & Reimbursement"
 
@@ -48,6 +52,13 @@ def classify_theme(text):
     ]):
         return "Caregiver Burden"
 
+    elif any(word in text for word in [
+        "awareness",
+        "education",
+        "rare disease day"
+    ]):
+        return "Disease Education"
+
     else:
         return "Other"
 
@@ -57,26 +68,35 @@ def classify_unmet_need(text):
     text = str(text).lower()
 
     if any(word in text for word in [
-        "insurance","coverage",
-        "approval","copay","denied"
+        "insurance",
+        "coverage",
+        "approval",
+        "copay",
+        "denied"
     ]):
         return "Access Barriers"
 
     elif any(word in text for word in [
-        "diagnosis","diagnosed",
-        "doctor","genetic testing"
+        "diagnosis",
+        "diagnosed",
+        "doctor",
+        "genetic testing"
     ]):
         return "Healthcare System Friction"
 
     elif any(word in text for word in [
-        "daughter","caregiver",
-        "family","parent"
+        "daughter",
+        "caregiver",
+        "family",
+        "parent"
     ]):
         return "Emotional Burden"
 
     elif any(word in text for word in [
-        "nausea","side effect",
-        "reaction","stomach"
+        "nausea",
+        "side effect",
+        "reaction",
+        "stomach"
     ]):
         return "Treatment Limitations"
 
@@ -87,7 +107,6 @@ def classify_unmet_need(text):
 def get_opportunity(unmet_need):
 
     mapping = {
-
         "Access Barriers":
             "Access Support & Navigation",
 
@@ -107,14 +126,14 @@ def get_opportunity(unmet_need):
     )
 
 # =====================================================
-# CLASSIFY DATA
+# CREATE COLUMNS
 # =====================================================
 
 df["theme"] = df["text"].apply(classify_theme)
 df["unmet_need"] = df["text"].apply(classify_unmet_need)
 
 # =====================================================
-# PAGE
+# HEADER
 # =====================================================
 
 st.title("🌐 Platform Intelligence")
@@ -124,7 +143,7 @@ st.caption(
 )
 
 # =====================================================
-# VOLUME CHART
+# CONVERSATION VOLUME
 # =====================================================
 
 st.subheader("Conversation Volume by Platform")
@@ -132,26 +151,112 @@ st.subheader("Conversation Volume by Platform")
 platform_counts = (
     df["platform"]
     .value_counts()
+    .reset_index()
 )
 
-st.bar_chart(platform_counts)
+platform_counts.columns = [
+    "Platform",
+    "Posts"
+]
+
+fig = px.bar(
+    platform_counts,
+    x="Platform",
+    y="Posts",
+    text="Posts",
+    color="Posts"
+)
+
+st.plotly_chart(
+    fig,
+    use_container_width=True
+)
+
+st.markdown("---")
 
 # =====================================================
-# SELECT PLATFORM
+# PLATFORM INTELLIGENCE TABLE
 # =====================================================
 
-platform = st.selectbox(
-    "Select Platform",
+rows = []
+
+for platform in sorted(df["platform"].unique()):
+
+    platform_df = df[
+        df["platform"] == platform
+    ]
+
+    themes = (
+        platform_df[
+            ~platform_df["theme"].isin([
+                "Other"
+            ])
+        ]["theme"]
+        .value_counts()
+    )
+
+    needs = (
+        platform_df[
+            ~platform_df["unmet_need"].isin([
+                "Further Review Needed"
+            ])
+        ]["unmet_need"]
+        .value_counts()
+    )
+
+    top_theme = (
+        themes.idxmax()
+        if len(themes) > 0
+        else "N/A"
+    )
+
+    top_need = (
+        needs.idxmax()
+        if len(needs) > 0
+        else "N/A"
+    )
+
+    opportunity = get_opportunity(
+        top_need
+    )
+
+    rows.append({
+
+        "Platform": platform,
+
+        "Posts": len(platform_df),
+
+        "Top Theme": top_theme,
+
+        "Top Unmet Need": top_need,
+
+        "PE Opportunity": opportunity
+
+    })
+
+platform_summary = pd.DataFrame(rows)
+
+st.subheader("Platform Intelligence Summary")
+
+st.dataframe(
+    platform_summary,
+    use_container_width=True
+)
+
+st.markdown("---")
+
+# =====================================================
+# PLATFORM DEEP DIVE
+# =====================================================
+
+selected_platform = st.selectbox(
+    "Select Platform for Deep Dive",
     sorted(df["platform"].unique())
 )
 
 platform_df = df[
-    df["platform"] == platform
+    df["platform"] == selected_platform
 ]
-
-# =====================================================
-# CALCULATE INSIGHTS
-# =====================================================
 
 themes = (
     platform_df[
@@ -169,44 +274,55 @@ needs = (
     .value_counts()
 )
 
-if len(themes) > 0:
-    top_theme = themes.idxmax()
-else:
-    top_theme = "No Theme Identified"
+top_theme = (
+    themes.idxmax()
+    if len(themes) > 0
+    else "N/A"
+)
 
-if len(needs) > 0:
-    top_need = needs.idxmax()
-else:
-    top_need = "No Unmet Need Identified"
+top_need = (
+    needs.idxmax()
+    if len(needs) > 0
+    else "N/A"
+)
 
-opportunity = get_opportunity(top_need)
+opportunity = get_opportunity(
+    top_need
+)
 
-# =====================================================
-# INSIGHT CARDS
-# =====================================================
+col1, col2, col3 = st.columns(3)
 
-c1, c2, c3 = st.columns(3)
-
-c1.metric(
+col1.metric(
     "Top Theme",
     top_theme
 )
 
-c2.metric(
+col2.metric(
     "Top Unmet Need",
     top_need
 )
 
-c3.metric(
+col3.metric(
     "PE Opportunity",
     opportunity
+)
+
+st.info(
+    f"""
+On **{selected_platform}**, the dominant discussion theme is
+**{top_theme}**.
+
+The leading unmet need identified is
+**{top_need}**.
+
+This suggests a patient engagement opportunity focused on
+**{opportunity}**.
+"""
 )
 
 # =====================================================
 # DONUT CHART
 # =====================================================
-
-st.subheader("Theme Distribution")
 
 if len(themes) > 0:
 
@@ -219,34 +335,13 @@ if len(themes) > 0:
 
     fig = px.pie(
         chart_df,
-        names="Theme",
         values="Count",
-        hole=.60
+        names="Theme",
+        hole=0.60,
+        title=f"{selected_platform} Theme Distribution"
     )
 
     st.plotly_chart(
         fig,
         use_container_width=True
     )
-
-# =====================================================
-# DISEASE BREAKDOWN
-# =====================================================
-
-st.subheader("Disease Breakdown")
-
-st.bar_chart(
-    platform_df["disease"].value_counts()
-)
-
-# =====================================================
-# SAMPLE POSTS
-# =====================================================
-
-st.subheader("Example Conversations")
-
-st.dataframe(
-    platform_df[
-        ["disease","text"]
-    ].head(5)
-)
