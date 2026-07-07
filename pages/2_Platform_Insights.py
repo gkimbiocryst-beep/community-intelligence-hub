@@ -7,7 +7,7 @@ import plotly.express as px
 # =====================================================
 
 st.set_page_config(
-    page_title="Platform Intelligence",
+    page_title="Platform Insights",
     page_icon="🌐",
     layout="wide"
 )
@@ -142,7 +142,7 @@ df["unmet_need"] = df["text"].apply(classify_unmet_need)
 # HEADER
 # =====================================================
 
-st.title("🌐 Platform Intelligence")
+st.title("🌐 Platform Insights")
 
 st.caption(
     "Understand how conversations differ across platforms and therapeutic areas"
@@ -195,7 +195,7 @@ tab1, tab2 = st.tabs([
 
 with tab1:
 
-    st.header("HAE Platform Intelligence")
+    st.header("HAE Platform Insights")
 
     rows = []
 
@@ -264,7 +264,7 @@ with tab1:
 with tab2:
 
     st.header(
-        "Netherton Syndrome Platform Intelligence"
+        "Netherton Syndrome Platform Insights"
     )
 
     rows = []
