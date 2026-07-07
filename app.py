@@ -10,6 +10,8 @@ st.set_page_config(
     page_title="Social Media Listening Hub",
     page_icon="📊",
     layout="wide"
+    st.logo("https://cdn-icons-png.flaticon.com/512/2920/2920349.png")
+    st.sidebar.title("Dashboard")
 )
 
 # ---------------------------------------------------------
