@@ -1,0 +1,51 @@
+post_id,platform,disease,text,source_type,date
+1,Facebook Group,HAE,Been on Orladeyo for 6 months. Attacks dropped from 3 per month to maybe 1 every two months. Daily pill is way easier than injections.,patient,2026-01-05
+2,Facebook Group,HAE,Insurance denied my Orladeyo refill AGAIN. Third prior auth this year. The process is exhausting.,patient,2026-01-08
+3,TikTok,HAE,Day in my life with HAE: take my daily pill head to work. Prophylaxis changed everything.,patient,2026-01-12
+4,Instagram,HAE,Travel tips for HAE warriors: always pack extra meds and keep your emergency plan accessible.,brand,2026-01-15
+5,Reddit,HAE,Diagnosed at 32 after years of random swelling. Doctors kept saying allergies. Genetic testing gave answers.,patient,2026-01-18
+6,YouTube,HAE,Dr. explains how oral kallikrein inhibitors prevent HAE attacks and reviews long-term data.,HCP,2026-01-22
+7,Facebook Group,HAE,Stomach issues from Orladeyo are rough. Nausea every morning for 2 months. Doctor says give it time.,patient,2026-01-25
+8,LinkedIn,HAE,BioCryst announces expanded pediatric indication for ORLADEYO in patients ages 2-12.,news,2026-01-28
+9,TikTok,HAE,Showing my HAE emergency kit. Medication check. Insurance card check. Always prepared.,patient,2026-01-30
+10,Facebook Group,HAE,My daughter was just diagnosed. She is 8. Terrified about what this means for her future.,caregiver,2026-02-02
+11,Instagram,HAE,Self-care Sunday with HAE: gentle exercise trigger tracking and appreciating attack-free days.,brand,2026-02-05
+12,Reddit,HAE,Copay is insane even with insurance. Empower Patient Services helped but the stress was unbearable.,patient,2026-02-08
+13,Facebook Group,HAE,Rare Disease Day: 15 years with HAE and still fighting for awareness and treatment access.,patient,2026-02-10
+14,TikTok,HAE,Explaining HAE in 60 seconds: rare genetic condition causing unpredictable painful swelling.,patient,2026-02-12
+15,YouTube,HAE,Patient panel at AAAAI discussing real-world experiences with HAE prophylactic treatments.,advocacy,2026-02-15
+16,Facebook Group,HAE,Brain fog since starting berotralstat. Doctor says not commonly reported but it feels real.,patient,2026-02-18
+17,Instagram,HAE,Happy Rare Disease Day! Sharing stories from the HAE community because visibility matters.,advocacy,2026-02-28
+18,News,HAE,CSL Behring launches ANDEMBRY for HAE joining competitive landscape alongside ORLADEYO.,news,2026-02-24
+19,Facebook Group,HAE,This community saved me. For years I felt alone. Finding other HAE patients changed everything.,patient,2026-02-22
+20,Reddit,HAE,Anxiety about when the next attack will hit never goes away. The mental toll is real.,patient,2026-03-02
+21,TikTok,HAE,POV: explaining to boss why you called in sick because your face swelled up overnight.,patient,2026-03-05
+22,Facebook Group,HAE,Empower Patient Services helped me navigate my insurance appeal. Got coverage after 3 months.,patient,2026-03-08
+23,LinkedIn,HAE,New data shows berotralstat reduces healthcare utilization in adolescent HAE patients.,HCP,2026-03-10
+24,Facebook Group,HAE,Three years attack-free on Orladeyo. There IS hope for newly diagnosed patients.,patient,2026-03-12
+25,TikTok,HAE,It took 8 years and 12 doctors to diagnose my HAE. Diagnostic journey needs to improve.,patient,2026-03-15
+26,Facebook Group,Netherton Syndrome,My 3 year old diagnosed with NS. Skin care takes 2 hours each morning. Any parent tips?,caregiver,2026-01-10
+27,Facebook Group,Netherton Syndrome,Bath time is the hardest. My daughter screams because everything stings her fragile skin.,caregiver,2026-01-17
+28,Instagram,Netherton Syndrome,Living with Netherton means explaining my skin to strangers daily. The stares never get easier.,patient,2026-01-23
+29,Reddit,Netherton Syndrome,Anyone else spend hours on skin care? I use 8 different creams daily.,patient,2026-01-28
+30,News,Netherton Syndrome,BioCryst begins Phase 1 of BCX17725 a KLK5 inhibitor for Netherton syndrome.,news,2026-02-01
+31,YouTube,Netherton Syndrome,Prof Mellerio discusses NS pathophysiology and how SPINK5 mutations cause barrier dysfunction.,HCP,2026-02-05
+32,Facebook Group,Netherton Syndrome,Watching your child suffer with no approved treatment is indescribable. Fund rare disease research.,caregiver,2026-02-09
+33,TikTok,Netherton Syndrome,Twin sisters sharing our Netherton skin care routine. Supporting each other through flares.,patient,2026-02-14
+34,Facebook Group,Netherton Syndrome,My son missed 40 school days from flares. Teachers dont understand this isnt just eczema.,caregiver,2026-02-18
+35,LinkedIn,Netherton Syndrome,Quoin Netherton Now campaign reaches 2M video views highlighting unmet need in NS.,news,2026-02-22
+36,Facebook Group,Netherton Syndrome,Seven doctors over 4 years before genetic testing confirmed SPINK5 mutation. Finally answers.,caregiver,2026-02-25
+37,Reddit,Netherton Syndrome,Anyone in the BCX17725 trial? Daughter is 8 and weve tried everything. Desperate for options.,caregiver,2026-02-28
+38,Instagram,Netherton Syndrome,Rare Disease Day: NS affects 1 in 100000 people with ZERO approved treatments.,advocacy,2026-02-28
+39,Facebook Group,Netherton Syndrome,ISG conference was first time my daughter met another child with Netherton. Happy tears.,caregiver,2026-03-03
+40,News,Netherton Syndrome,NS treatment market expected to grow with BCX17725 QRX003 and ATR-12 in pipeline.,news,2026-03-06
+41,TikTok,Netherton Syndrome,Morning routine with Netherton: 45 min of skin care. Creams bandages gentle handling.,patient,2026-03-10
+42,Facebook Group,Netherton Syndrome,Grocery bill for special creams is crushing us. Insurance covers almost nothing.,caregiver,2026-03-13
+43,YouTube,Netherton Syndrome,Mandy from ISG shares her NS journey and advocates for genetic skin disease awareness.,advocacy,2026-03-16
+44,Facebook Group,Netherton Syndrome,People stare at my daughter everywhere. She is starting to notice. More awareness needed.,caregiver,2026-03-19
+45,Reddit,Netherton Syndrome,Just learned about BCX17725 trial. First real hope for treatment in years.,patient,2026-03-22
+46,Facebook Group,HAE,Starting Orladeyo next week. Nervous about side effects. Would love positive experiences.,patient,2026-03-18
+47,News,HAE,AAAAI 2026 highlights new HAE treatment data and pediatric guidelines.,news,2026-03-20
+48,Facebook Group,Netherton Syndrome,Baby in NICU 3 weeks due to NS skin infections. Infant mortality risk is terrifying.,caregiver,2026-03-25
+49,LinkedIn,HAE,Pharvaris deucrictibant positive Phase 3 adds another oral competitor in HAE prophylaxis.,news,2026-03-28
+50,Facebook Group,HAE,Grateful for 20 years of community. When diagnosed I felt alone. Now we have each other.,patient,2026-03-30
