@@ -1,73 +1,59 @@
-from textblob import TextBlob
-
-
-# ======================
-# THEME CLASSIFIER
-# ======================
-
 def classify_theme(text):
 
     text = str(text).lower()
 
+    # Access
     if any(word in text for word in [
-        "insurance",
-        "copay",
-        "coverage",
-        "prior auth",
-        "refill"
+        "insurance","copay","coverage",
+        "prior auth","approval","cost"
     ]):
-        return "Insurance & Access"
+        return "Access & Reimbursement"
 
+    # Diagnosis
     elif any(word in text for word in [
-        "diagnosed",
-        "diagnosis",
-        "doctor",
+        "diagnosis","diagnosed",
+        "doctor","allergies",
         "genetic testing"
     ]):
         return "Diagnosis Journey"
 
+    # Treatment
     elif any(word in text for word in [
-        "nausea",
-        "side effect",
+        "orladeyo",
+        "pill",
+        "treatment",
         "medication",
-        "treatment"
+        "prophylaxis"
     ]):
         return "Treatment Experience"
 
+    # Side effects
+    elif any(word in text for word in [
+        "nausea",
+        "side effect",
+        "stomach issues",
+        "reaction"
+    ]):
+        return "Treatment Limitations"
+
+    # Caregiver
     elif any(word in text for word in [
         "daughter",
         "caregiver",
-        "family"
+        "family",
+        "parent"
     ]):
         return "Caregiver Burden"
 
-    else:
-        return "General Discussion"
-
-
-# ======================
-# SENTIMENT
-# ======================
-
-def get_sentiment(text):
-
-    score = TextBlob(
-        str(text)
-    ).sentiment.polarity
-
-    if score > 0.1:
-        return "Positive"
-
-    elif score < -0.1:
-        return "Negative"
+    # Education
+    elif any(word in text for word in [
+        "awareness",
+        "explaining",
+        "what is",
+        "learn"
+    ]):
+        return "Disease Education"
 
     else:
-        return "Neutral"
-
-
-# ======================
-# UNMET NEEDS
-# ======================
-
-def classify_unmet_need(text):
-
+        return "Other"
+``
