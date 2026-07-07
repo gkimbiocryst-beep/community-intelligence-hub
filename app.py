@@ -16,6 +16,63 @@ st.set_page_config(
 # =====================================================
 
 df = pd.read_csv("sample_posts.csv")
+# =====================================================
+# THEME CLASSIFIER
+# =====================================================
+
+def classify_theme(text):
+
+    text = str(text).lower()
+
+    if "insurance" in text or "copay" in text:
+        return "Insurance & Access"
+
+    elif "diagnosis" in text:
+        return "Diagnosis Journey"
+
+    elif "caregiver" in text or "daughter" in text:
+        return "Caregiver Burden"
+
+    elif "side effect" in text or "nausea" in text:
+        return "Treatment Experience"
+
+    else:
+        return "General Discussion"
+
+
+# =====================================================
+# UNMET NEED CLASSIFIER
+# =====================================================
+
+def classify_unmet_need(text):
+
+    text = str(text).lower()
+
+    if "insurance" in text or "copay" in text:
+        return "Access Barriers"
+
+    elif "diagnosis" in text:
+        return "Healthcare System Friction"
+
+    elif "caregiver" in text or "daughter" in text:
+        return "Emotional Burden"
+
+    elif "side effect" in text or "nausea" in text:
+        return "Treatment Limitations"
+
+    else:
+        return "Education Gap"
+
+
+# CREATE NEW COLUMNS
+
+df["theme"] = df["text"].apply(classify_theme)
+
+df["unmet_need"] = df["text"].apply(classify_unmet_need)
+
+
+hae = df[df["disease"] == "HAE"]
+ns = df[df["disease"] == "Netherton Syndrome"]
 
 # =====================================================
 # MAKE SURE THESE COLUMNS EXIST
