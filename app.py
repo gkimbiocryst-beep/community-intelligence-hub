@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 
+# PAGE SETUP
 st.set_page_config(
     page_title="Social Media Listening Hub",
     page_icon="📊",
@@ -10,124 +11,169 @@ st.set_page_config(
 # LOAD DATA
 df = pd.read_csv("sample_posts.csv")
 
-# SPLIT BY DISEASE
 hae = df[df["disease"] == "HAE"]
 ns = df[df["disease"] == "Netherton Syndrome"]
 
 # HEADER
 st.title("Social Media Listening & Community Intelligence Hub")
+
 st.caption(
     "Transforming patient conversations into actionable patient engagement insights"
 )
 
+# =====================================================
 # EXECUTIVE SUMMARY
+# =====================================================
+
 st.markdown("## Executive Summary")
 
 col1, col2, col3, col4 = st.columns(4)
 
-col1.metric("Total Conversations", len(df))
-col2.metric("HAE Conversations", len(hae))
-col3.metric("Netherton Conversations", len(ns))
-col4.metric("Platforms", df["platform"].nunique())
+col1.metric(
+    "Total Conversations",
+    len(df)
+)
+
+col2.metric(
+    "HAE",
+    len(hae)
+)
+
+col3.metric(
+    "Netherton Syndrome",
+    len(ns)
+)
+
+col4.metric(
+    "Platforms",
+    df["platform"].nunique()
+)
 
 st.markdown("---")
 
-# =====================
-# HAE SECTION
-# =====================
+# =====================================================
+# TABS
+# =====================================================
 
-st.header("HAE Community Insights")
+tab1, tab2 = st.tabs(
+    ["HAE", "Netherton Syndrome"]
+)
 
-col1, col2 = st.columns([1, 2])
+# =====================================================
+# HAE TAB
+# =====================================================
 
-with col1:
+with tab1:
 
-    st.metric("Conversations", len(hae))
+    st.header("HAE Community Insights")
 
-    st.info("""
-    **Priority Area**
+    left, right = st.columns([1, 2])
 
-    Insurance & Access
+    with left:
 
-    **Unmet Need**
+        st.metric(
+            "Conversations",
+            len(hae)
+        )
 
-    Access Barriers
-    """)
+        st.info("""
+Primary Theme
 
-with col2:
+Insurance & Access
 
-    platform_counts = hae["platform"].value_counts()
+Unmet Need
 
-    st.subheader("Conversation Sources")
+Access Barriers
+""")
 
-    st.bar_chart(platform_counts)
+    with right:
 
-st.markdown("""
-### Key Insight
+        st.subheader("Conversation Sources")
 
+        st.bar_chart(
+            hae["platform"].value_counts()
+        )
+
+    st.markdown("### Key Insight")
+
+    st.write(
+        """
 HAE conversations frequently discuss insurance approvals,
-prior authorizations, and treatment access challenges.
+prior authorization challenges, and treatment access barriers.
+"""
+    )
 
-### Recommended Actions
+    st.markdown("### Recommended Actions")
 
+    st.markdown("""
 - Improve reimbursement education resources
 - Expand patient support information
 - Develop access-focused engagement initiatives
 """)
 
-st.markdown("---")
+# =====================================================
+# NETHERTON TAB
+# =====================================================
 
-# =====================
-# NETHERTON SECTION
-# =====================
+with tab2:
 
-st.header("Netherton Syndrome Community Insights")
+    st.header("Netherton Syndrome Community Insights")
 
-col1, col2 = st.columns([1, 2])
+    left, right = st.columns([1, 2])
 
-with col1:
+    with left:
 
-    st.metric("Conversations", len(ns))
+        st.metric(
+            "Conversations",
+            len(ns)
+        )
 
-    st.info("""
-    **Priority Area**
+        st.info("""
+Primary Theme
 
-    Diagnosis Journey
+Diagnosis Journey
 
-    **Unmet Need**
+Unmet Need
 
-    Healthcare System Friction
-    """)
-
-with col2:
-
-    platform_counts = ns["platform"].value_counts()
-
-    st.subheader("Conversation Sources")
-
-    st.bar_chart(platform_counts)
-
-st.markdown("""
-### Key Insight
-
-Netherton Syndrome conversations often focus on delayed
-diagnosis, limited disease awareness, and caregiver burden.
-
-### Recommended Actions
-
-- Support diagnosis awareness initiatives
-- Develop educational materials
-- Enhance caregiver support resources
+Healthcare System Friction
 """)
 
-st.markdown("---")
+    with right:
 
-# STRATEGIC OPPORTUNITIES
+        st.subheader("Conversation Sources")
+
+        st.bar_chart(
+            ns["platform"].value_counts()
+        )
+
+    st.markdown("### Key Insight")
+
+    st.write(
+        """
+Netherton Syndrome conversations frequently discuss delayed
+diagnosis, difficulties finding knowledgeable providers,
+and caregiver burden.
+"""
+    )
+
+    st.markdown("### Recommended Actions")
+
+    st.markdown("""
+- Support diagnosis awareness initiatives
+- Develop educational materials
+- Expand caregiver support resources
+""")
+
+# =====================================================
+# OVERALL OPPORTUNITIES
+# =====================================================
+
+st.markdown("---")
 
 st.header("Patient Engagement Opportunities")
 
 st.success("""
-Key areas where patient engagement efforts may create value:
+Key areas where patient engagement initiatives may create value:
 
 • Access and reimbursement support
 
@@ -135,7 +181,7 @@ Key areas where patient engagement efforts may create value:
 
 • Diagnosis awareness
 
-• Caregiver support initiatives
+• Caregiver support
 
 • Community storytelling and peer support
 """)
