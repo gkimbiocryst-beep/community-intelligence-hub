@@ -222,18 +222,31 @@ tab1, tab2 = st.tabs(["HAE", "Netherton Syndrome"])
 with tab1:
 
     hae_themes = (
-        hae[hae["theme"] != "Other"]
-        ["theme"]
-        .value_counts()
-    )
+    hae[
+        ~hae["theme"].isin([
+            "Other",
+            "General Discussion"
+        ])
+    ]["theme"]
+    .value_counts()
+)
 
+hae_top_theme = hae_themes.idxmax()
     hae_top_theme = hae_themes.idxmax()
 
-    hae_top_need = (
-        hae["unmet_need"]
-        .value_counts()
-        .idxmax()
-    )
+    hae_needs = (
+    hae[
+        ~hae["unmet_need"].isin([
+            "Further Review Needed",
+            "Unknown",
+            "Education Gap"
+        ])
+    ]["unmet_need"]
+    .value_counts()
+)
+
+hae_top_need = hae_needs.idxmax()
+
 
     hae_opportunity = get_opportunity(
         hae_top_need
@@ -291,18 +304,31 @@ with tab1:
 with tab2:
 
     ns_themes = (
-        ns[ns["theme"] != "Other"]
-        ["theme"]
-        .value_counts()
-    )
+    ns[
+        ~ns["theme"].isin([
+            "Other",
+            "General Discussion"
+        ])
+    ]["theme"]
+    .value_counts()
+)
+
+ns_top_theme = ns_themes.idxmax()
 
     ns_top_theme = ns_themes.idxmax()
 
-    ns_top_need = (
-        ns["unmet_need"]
-        .value_counts()
-        .idxmax()
-    )
+    ns_needs = (
+    ns[
+        ~ns["unmet_need"].isin([
+            "Further Review Needed",
+            "Unknown",
+            "Education Gap"
+        ])
+    ]["unmet_need"]
+    .value_counts()
+)
+
+ns_top_need = ns_needs.idxmax()
 
     ns_opportunity = get_opportunity(
         ns_top_need
