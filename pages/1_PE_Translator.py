@@ -58,6 +58,7 @@ def classify_theme(text):
     else:
         return "Other"
 
+
 # =====================================================
 # UNMET NEED CLASSIFIER
 # =====================================================
@@ -92,6 +93,7 @@ def classify_unmet_need(text):
 
     else:
         return "Further Review Needed"
+
 
 # =====================================================
 # SENTIMENT CLASSIFIER
@@ -141,8 +143,10 @@ def classify_sentiment(text):
 
     else:
         return "Neutral"
+
+
 # =====================================================
-# PE OPPORTUNITIES
+# OPPORTUNITIES
 # =====================================================
 
 def get_opportunity(unmet_need):
@@ -166,6 +170,7 @@ def get_opportunity(unmet_need):
         unmet_need,
         "Further Review Needed"
     )
+
 
 # =====================================================
 # RECOMMENDATIONS
@@ -205,20 +210,6 @@ def get_recommendations(unmet_need):
         ["Further review needed"]
     )
 
-# =====================================================
-# PRIORITY SCORING
-# =====================================================
-
-def get_priority(count):
-
-    if count >= 8:
-        return "🔴 High"
-
-    elif count >= 4:
-        return "🟡 Medium"
-
-    else:
-        return "🟢 Opportunity"
 
 # =====================================================
 # CREATE COLUMNS
@@ -226,6 +217,7 @@ def get_priority(count):
 
 df["theme"] = df["text"].apply(classify_theme)
 df["unmet_need"] = df["text"].apply(classify_unmet_need)
+df["sentiment"] = df["text"].apply(classify_sentiment)
 
 # =====================================================
 # PAGE HEADER
@@ -283,19 +275,9 @@ for disease, tab in zip(
         top_theme = themes.idxmax()
         top_need = needs.idxmax()
 
-        opportunity = get_opportunity(
-            top_need
-        )
+        opportunity = get_opportunity(top_need)
 
-        recommendations = get_recommendations(
-            top_need
-        )
-
-        top_need_count = needs.iloc[0]
-
-        priority = get_priority(
-            top_need_count
-        )
+        recommendations = get_recommendations(top_need)
 
         st.markdown(f"""
 ### **Top Theme**
@@ -304,18 +286,17 @@ for disease, tab in zip(
 ### **Top Unmet Need**
 **{top_need}**
 
-### **Priority**
-**{priority}**
-
 ### **Patient Engagement Opportunity**
 **{opportunity}**
 """)
 
         st.info(
             f"""
-The dominant conversation theme is **{top_theme}**, which maps to the unmet need **{top_need}**.
+The dominant conversation theme is **{top_theme}**.
 
-This suggests an opportunity in the area of **{opportunity}**.
+The leading unmet need is **{top_need}**.
+
+This suggests a patient engagement opportunity focused on **{opportunity}**.
 """
         )
 
@@ -327,21 +308,14 @@ This suggests an opportunity in the area of **{opportunity}**.
         # =====================================================
         # PRIORITY RANKING
         # =====================================================
-        
+
         st.markdown("---")
-        
         st.markdown("## 🚨 Theme Priority Ranking")
-        
-        # Create sentiment column
-        df["sentiment"] = df["text"].apply(
-            classify_sentiment
-        )
-        
+
         priority_rows = []
-        
+
         for theme_name, count in themes.items():
-        
-            # Count negative posts for this theme
+
             negative_posts = len(
                 disease_df[
                     (disease_df["theme"] == theme_name)
@@ -349,76 +323,37 @@ This suggests an opportunity in the area of **{opportunity}**.
                     (disease_df["sentiment"] == "Negative")
                 ]
             )
-        
-            # Priority score
-            priority_score = (
-                count +
-                (negative_posts * 2)
-            )
-        
-            # Dynamic priority
+
+            priority_score = count + (negative_posts * 2)
+
             if priority_score >= 12:
                 priority = "🔴 High"
-        
             elif priority_score >= 6:
                 priority = "🟡 Medium"
-        
             else:
                 priority = "🟢 Opportunity"
-        
-            # Theme -> unmet need mapping
-        
-            if theme_name == "Access & Reimbursement":
-                need = "Access Barriers"
-        
-            elif theme_name == "Diagnosis Journey":
-                need = "Healthcare System Friction"
-        
-            elif theme_name == "Caregiver Burden":
-                need = "Emotional Burden"
-        
-            elif theme_name == "Treatment Limitations":
-                need = "Treatment Limitations"
-        
-            elif theme_name == "Treatment Experience":
-                need = "Treatment Limitations"
-        
-            elif theme_name == "Disease Education":
-                need = "Healthcare System Friction"
-        
-            else:
-                need = "Further Review Needed"
-        
+
             priority_rows.append({
-        
                 "Theme": theme_name,
-        
                 "Mentions": count,
-        
                 "Negative Posts": negative_posts,
-        
                 "Priority Score": priority_score,
-        
-                "Priority": priority,
-        
-                "Patient Engagement Opportunity":
-                    get_opportunity(need)
-        
+                "Priority": priority
             })
-        
+
         priority_df = pd.DataFrame(priority_rows)
-        
+
         priority_df = priority_df.sort_values(
             by="Priority Score",
             ascending=False
         )
-        
+
         priority_df.insert(
             0,
             "Rank",
             range(1, len(priority_df) + 1)
         )
-        
+
         st.dataframe(
             priority_df,
             use_container_width=True,
