@@ -359,3 +359,111 @@ This suggests a patient engagement opportunity focused on **{opportunity}**.
             use_container_width=True,
             hide_index=True
         )
+# =====================================================
+# TOP 3 PE PRIORITIES
+# =====================================================
+
+st.markdown("---")
+
+st.markdown("## 🎯 Top 3 PE Priorities")
+
+top_priorities = priority_df.head(3)
+
+theme_explanations = {
+
+    "Access & Reimbursement":
+        "Patients are discussing insurance approvals, reimbursement challenges, medication access, and treatment affordability.",
+
+    "Diagnosis Journey":
+        "Patients are describing delayed diagnoses, provider challenges, and difficulties reaching a diagnosis.",
+
+    "Treatment Experience":
+        "Patients are discussing treatment effectiveness, daily management, and overall treatment experiences.",
+
+    "Treatment Limitations":
+        "Patients are reporting side effects, treatment burden, and limitations associated with current therapies.",
+
+    "Caregiver Burden":
+        "Caregivers are discussing emotional burden, family impact, and disease management responsibilities.",
+
+    "Disease Education":
+        "Patients are seeking information, awareness resources, and educational support."
+}
+
+for _, row in top_priorities.iterrows():
+
+    st.markdown(
+        f"### {row['Priority']} Priority #{row['Rank']}: {row['Theme']}"
+    )
+
+    st.markdown(
+        f"""
+**Mentions:** {row['Mentions']}
+
+**Negative Posts:** {row['Negative Posts']}
+
+**Priority Score:** {row['Priority Score']}
+"""
+    )
+
+    st.info(
+        theme_explanations.get(
+            row["Theme"],
+            "No explanation available."
+        )
+    )
+
+    if row["Theme"] == "Access & Reimbursement":
+
+        actions = [
+            "Develop reimbursement education resources",
+            "Address common insurance questions",
+            "Provide access navigation support"
+        ]
+
+    elif row["Theme"] == "Diagnosis Journey":
+
+        actions = [
+            "Develop diagnosis journey resources",
+            "Support awareness initiatives",
+            "Create provider education materials"
+        ]
+
+    elif row["Theme"] == "Treatment Experience":
+
+        actions = [
+            "Gather patient treatment feedback",
+            "Develop patient education materials",
+            "Explore treatment storytelling opportunities"
+        ]
+
+    elif row["Theme"] == "Treatment Limitations":
+
+        actions = [
+            "Address treatment burden concerns",
+            "Collect patient experience insights",
+            "Develop expectation-setting resources"
+        ]
+
+    elif row["Theme"] == "Caregiver Burden":
+
+        actions = [
+            "Expand caregiver support programming",
+            "Facilitate peer-to-peer support",
+            "Create caregiver-focused resources"
+        ]
+
+    else:
+
+        actions = [
+            "Increase educational content",
+            "Monitor discussion trends",
+            "Assess future engagement needs"
+        ]
+
+    st.markdown("**Recommended PE Actions**")
+
+    for action in actions:
+        st.write(f"• {action}")
+
+    st.markdown("")
