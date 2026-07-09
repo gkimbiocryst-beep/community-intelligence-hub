@@ -94,6 +94,54 @@ def classify_unmet_need(text):
         return "Further Review Needed"
 
 # =====================================================
+# SENTIMENT CLASSIFIER
+# =====================================================
+
+def classify_sentiment(text):
+
+    text = str(text).lower()
+
+    negative_words = [
+        "denied",
+        "delay",
+        "delayed",
+        "frustrated",
+        "difficult",
+        "pain",
+        "issue",
+        "problem",
+        "struggling",
+        "rough",
+        "fatigue",
+        "burning",
+        "itch",
+        "nausea",
+        "reaction",
+        "misdiagnosed"
+    ]
+
+    positive_words = [
+        "better",
+        "improved",
+        "effective",
+        "great",
+        "helpful",
+        "successful",
+        "supportive",
+        "relieved",
+        "controlled",
+        "attack-free"
+    ]
+
+    if any(word in text for word in negative_words):
+        return "Negative"
+
+    elif any(word in text for word in positive_words):
+        return "Positive"
+
+    else:
+        return "Neutral"
+# =====================================================
 # PE OPPORTUNITIES
 # =====================================================
 
