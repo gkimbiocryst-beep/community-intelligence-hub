@@ -277,62 +277,102 @@ This suggests an opportunity in the area of **{opportunity}**.
             st.write(f"• {item}")
 
         # =====================================================
-        # PRIORITY RANKING
-        # =====================================================
+# PRIORITY RANKING
+# =====================================================
 
-        st.markdown("---")
+st.markdown("---")
 
-        st.markdown("## 🚨 Theme Priority Ranking")
+st.markdown("## 🚨 Theme Priority Ranking")
 
-        priority_rows = []
+# Create sentiment column
+df["sentiment"] = df["text"].apply(
+    classify_sentiment
+)
 
-        for theme_name, count in themes.items():
+priority_rows = []
 
-            priority = get_priority(count)
+for theme_name, count in themes.items():
 
-            if theme_name == "Access & Reimbursement":
-                need = "Access Barriers"
+    # Count negative posts for this theme
+    negative_posts = len(
+        disease_df[
+            (disease_df["theme"] == theme_name)
+            &
+            (disease_df["sentiment"] == "Negative")
+        ]
+    )
 
-            elif theme_name == "Diagnosis Journey":
-                need = "Healthcare System Friction"
+    # Priority score
+    priority_score = (
+        count +
+        (negative_posts * 2)
+    )
 
-            elif theme_name == "Caregiver Burden":
-                need = "Emotional Burden"
+    # Dynamic priority
+    if priority_score >= 12:
+        priority = "🔴 High"
 
-            elif theme_name == "Treatment Limitations":
-                need = "Treatment Limitations"
+    elif priority_score >= 6:
+        priority = "🟡 Medium"
 
-            elif theme_name == "Treatment Experience":
-                need = "Treatment Limitations"
+    else:
+        priority = "🟢 Opportunity"
 
-            elif theme_name == "Disease Education":
-                need = "Healthcare System Friction"
+    # Theme -> unmet need mapping
 
-            else:
-                need = "Further Review Needed"
+    if theme_name == "Access & Reimbursement":
+        need = "Access Barriers"
 
-            priority_rows.append({
+    elif theme_name == "Diagnosis Journey":
+        need = "Healthcare System Friction"
 
-                "Theme": theme_name,
+    elif theme_name == "Caregiver Burden":
+        need = "Emotional Burden"
 
-                "Mentions": count,
+    elif theme_name == "Treatment Limitations":
+        need = "Treatment Limitations"
 
-                "Priority": priority,
+    elif theme_name == "Treatment Experience":
+        need = "Treatment Limitations"
 
-                "Patient Engagement Opportunity":
-                    get_opportunity(need)
+    elif theme_name == "Disease Education":
+        need = "Healthcare System Friction"
 
-            })
+    else:
+        need = "Further Review Needed"
 
-        priority_df = pd.DataFrame(priority_rows)
+    priority_rows.append({
 
-        priority_df = priority_df.sort_values(
-            by="Mentions",
-            ascending=False
-        )
+        "Theme": theme_name,
 
-        st.dataframe(
-            priority_df,
-            use_container_width=True,
-            hide_index=True
-        )
+        "Mentions": count,
+
+        "Negative Posts": negative_posts,
+
+        "Priority Score": priority_score,
+
+        "Priority": priority,
+
+        "Patient Engagement Opportunity":
+            get_opportunity(need)
+
+    })
+
+priority_df = pd.DataFrame(priority_rows)
+
+priority_df = priority_df.sort_values(
+    by="Priority Score",
+    ascending=False
+)
+
+priority_df.insert(
+    0,
+    "Rank",
+    range(1, len(priority_df) + 1)
+)
+
+st.dataframe(
+    priority_df,
+    use_container_width=True,
+    hide_index=True
+)
