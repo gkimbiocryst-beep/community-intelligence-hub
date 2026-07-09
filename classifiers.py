@@ -120,3 +120,96 @@ def get_recommendations(unmet_need):
         unmet_need,
         ["Further review needed"]
     )
+
+# =====================================================
+# SENTIMENT CLASSIFIER
+# =====================================================
+
+def classify_sentiment(text):
+
+    text = str(text).lower()
+
+    negative_words = [
+        "denied",
+        "delay",
+        "delayed",
+        "frustrated",
+        "difficult",
+        "pain",
+        "issue",
+        "problem",
+        "struggling",
+        "rough",
+        "fatigue",
+        "burning",
+        "itch",
+        "nausea",
+        "reaction",
+        "misdiagnosed"
+    ]
+
+    positive_words = [
+        "better",
+        "improved",
+        "effective",
+        "helpful",
+        "great",
+        "successful",
+        "supportive",
+        "relieved",
+        "controlled",
+        "attack-free"
+    ]
+
+    if any(word in text for word in negative_words):
+        return "Negative"
+
+    elif any(word in text for word in positive_words):
+        return "Positive"
+
+    else:
+        return "Neutral"
+
+
+# =====================================================
+# OPPORTUNITY MAPPING
+# =====================================================
+
+def get_opportunity(unmet_need):
+
+    mapping = {
+
+        "Access Barriers":
+            "Access Support & Navigation",
+
+        "Healthcare System Friction":
+            "Diagnosis Awareness",
+
+        "Emotional Burden":
+            "Caregiver Support",
+
+        "Treatment Limitations":
+            "Treatment Education"
+
+    }
+
+    return mapping.get(
+        unmet_need,
+        "Further Review Needed"
+    )
+
+
+# =====================================================
+# PRIORITY SCORING
+# =====================================================
+
+def get_priority(count):
+
+    if count >= 8:
+        return "🔴 High"
+
+    elif count >= 4:
+        return "🟡 Medium"
+
+    else:
+        return "🟢 Opportunity"
