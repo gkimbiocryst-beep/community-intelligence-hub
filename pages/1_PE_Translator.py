@@ -359,6 +359,7 @@ This suggests a patient engagement opportunity focused on **{opportunity}**.
             use_container_width=True,
             hide_index=True
         )
+
 # =====================================================
 # TOP 3 PE PRIORITIES
 # =====================================================
@@ -369,22 +370,22 @@ st.markdown("## 🎯 Top 3 PE Priorities")
 
 top_priorities = priority_df.head(3)
 
-theme_explanations = {
+theme_descriptions = {
 
     "Access & Reimbursement":
-        "Patients are discussing insurance approvals, reimbursement challenges, medication access, and treatment affordability.",
+        "Patients are discussing treatment access, insurance coverage, reimbursement challenges, and affordability concerns.",
 
     "Diagnosis Journey":
-        "Patients are describing delayed diagnoses, provider challenges, and difficulties reaching a diagnosis.",
+        "Patients are sharing experiences related to diagnosis, provider interactions, and delays in reaching a diagnosis.",
 
     "Treatment Experience":
         "Patients are discussing treatment effectiveness, daily management, and overall treatment experiences.",
 
     "Treatment Limitations":
-        "Patients are reporting side effects, treatment burden, and limitations associated with current therapies.",
+        "Patients are discussing side effects, treatment burden, and limitations associated with current therapies.",
 
     "Caregiver Burden":
-        "Caregivers are discussing emotional burden, family impact, and disease management responsibilities.",
+        "Caregivers are discussing family impact, emotional burden, and disease management responsibilities.",
 
     "Disease Education":
         "Patients are seeking information, awareness resources, and educational support."
@@ -392,78 +393,81 @@ theme_explanations = {
 
 for _, row in top_priorities.iterrows():
 
-    st.markdown(
-        f"### {row['Priority']} Priority #{row['Rank']}: {row['Theme']}"
+    theme_name = row["Theme"]
+
+    theme_posts = disease_df[
+        disease_df["theme"] == theme_name
+    ]
+
+    most_active_platform = (
+        theme_posts["platform"]
+        .value_counts()
+        .idxmax()
+    )
+
+    example_posts = (
+        theme_posts["text"]
+        .head(3)
+        .tolist()
     )
 
     st.markdown(
-        f"""
-**Mentions:** {row['Mentions']}
-
-**Negative Posts:** {row['Negative Posts']}
-
-**Priority Score:** {row['Priority Score']}
-"""
+        f"### {row['Priority']} Priority #{row['Rank']}: {theme_name}"
     )
 
-    st.info(
-        theme_explanations.get(
-            row["Theme"],
-            "No explanation available."
+    st.markdown("#### What the Community is Saying")
+
+    st.write(
+        theme_descriptions.get(
+            theme_name,
+            "Community discussion identified."
         )
     )
 
-    if row["Theme"] == "Access & Reimbursement":
+    st.markdown("#### Why This Matters")
 
-        actions = [
-            "Develop reimbursement education resources",
-            "Address common insurance questions",
-            "Provide access navigation support"
-        ]
+    st.info(
+        f"""
+This theme appeared in **{row['Mentions']} conversations**.
 
-    elif row["Theme"] == "Diagnosis Journey":
+**{row['Negative Posts']} conversations** were classified as negative sentiment.
 
-        actions = [
-            "Develop diagnosis journey resources",
-            "Support awareness initiatives",
-            "Create provider education materials"
-        ]
+Most discussion activity occurred on **{most_active_platform}**.
 
-    elif row["Theme"] == "Treatment Experience":
+Priority Score: **{row['Priority Score']}**
+"""
+    )
 
-        actions = [
-            "Gather patient treatment feedback",
-            "Develop patient education materials",
-            "Explore treatment storytelling opportunities"
-        ]
+    st.markdown("#### Example Community Conversations")
 
-    elif row["Theme"] == "Treatment Limitations":
+    for post in example_posts:
+        st.write(f"• {post}")
 
-        actions = [
-            "Address treatment burden concerns",
-            "Collect patient experience insights",
-            "Develop expectation-setting resources"
-        ]
+    if theme_name == "Access & Reimbursement":
+        need = "Access Barriers"
 
-    elif row["Theme"] == "Caregiver Burden":
+    elif theme_name == "Diagnosis Journey":
+        need = "Healthcare System Friction"
 
-        actions = [
-            "Expand caregiver support programming",
-            "Facilitate peer-to-peer support",
-            "Create caregiver-focused resources"
-        ]
+    elif theme_name == "Caregiver Burden":
+        need = "Emotional Burden"
+
+    elif theme_name == "Treatment Limitations":
+        need = "Treatment Limitations"
+
+    elif theme_name == "Treatment Experience":
+        need = "Treatment Limitations"
+
+    elif theme_name == "Disease Education":
+        need = "Healthcare System Friction"
 
     else:
+        need = "Further Review Needed"
 
-        actions = [
-            "Increase educational content",
-            "Monitor discussion trends",
-            "Assess future engagement needs"
-        ]
+    st.markdown("#### Suggested Patient Engagement Opportunity")
 
-    st.markdown("**Recommended PE Actions**")
-
-    for action in actions:
-        st.write(f"• {action}")
+    st.success(
+        get_opportunity(need)
+    )
 
     st.markdown("")
