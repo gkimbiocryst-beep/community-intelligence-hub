@@ -26,34 +26,47 @@ def classify_theme(text):
     text = str(text).lower()
 
     if any(word in text for word in [
-        "insurance","coverage","approval",
-        "copay","denied","refill"
+        "insurance", "coverage", "approval",
+        "copay", "denied", "refill", "access",
+        "prior auth", "prior authorization", "cost"
     ]):
         return "Access & Reimbursement"
 
     elif any(word in text for word in [
-        "diagnosis","diagnosed",
-        "doctor","genetic testing"
+        "diagnosis", "diagnosed",
+        "doctor", "genetic testing",
+        "misdiagnosed", "allergies"
     ]):
         return "Diagnosis Journey"
 
     elif any(word in text for word in [
-        "nausea","side effect",
-        "reaction","stomach"
+        "nausea", "side effect",
+        "reaction", "stomach",
+        "fatigue", "itch", "burning",
+        "pain", "rough"
     ]):
         return "Treatment Limitations"
 
     elif any(word in text for word in [
-        "orladeyo","treatment",
-        "medication","attacks"
+        "orladeyo", "treatment",
+        "medication", "attacks",
+        "swelling", "pill", "prophylaxis",
+        "attack-free", "emergency kit"
     ]):
         return "Treatment Experience"
 
     elif any(word in text for word in [
-        "daughter","caregiver",
-        "family","parent"
+        "daughter", "son", "caregiver",
+        "family", "parent", "mother", "father"
     ]):
         return "Caregiver Burden"
+
+    elif any(word in text for word in [
+        "awareness", "education",
+        "rare disease day", "explaining",
+        "what is", "condition"
+    ]):
+        return "Disease Education"
 
     else:
         return "Other"
@@ -68,26 +81,30 @@ def classify_unmet_need(text):
     text = str(text).lower()
 
     if any(word in text for word in [
-        "insurance","coverage",
-        "approval","copay","denied"
+        "insurance", "coverage",
+        "approval", "copay", "denied",
+        "refill", "access", "prior auth",
+        "prior authorization", "cost"
     ]):
         return "Access Barriers"
 
     elif any(word in text for word in [
-        "diagnosis","diagnosed",
-        "doctor","genetic testing"
+        "diagnosis", "diagnosed",
+        "doctor", "genetic testing",
+        "misdiagnosed"
     ]):
         return "Healthcare System Friction"
 
     elif any(word in text for word in [
-        "daughter","caregiver",
-        "family","parent"
+        "daughter", "son", "caregiver",
+        "family", "parent", "mother", "father"
     ]):
         return "Emotional Burden"
 
     elif any(word in text for word in [
-        "nausea","side effect",
-        "stomach","reaction"
+        "nausea", "side effect",
+        "stomach", "reaction",
+        "fatigue", "itch", "burning", "pain"
     ]):
         return "Treatment Limitations"
 
@@ -119,7 +136,10 @@ def classify_sentiment(text):
         "itch",
         "nausea",
         "reaction",
-        "misdiagnosed"
+        "misdiagnosed",
+        "cost",
+        "coverage",
+        "prior authorization"
     ]
 
     positive_words = [
@@ -146,7 +166,7 @@ def classify_sentiment(text):
 
 
 # =====================================================
-# OPPORTUNITIES
+# OPPORTUNITY MAPPING
 # =====================================================
 
 def get_opportunity(unmet_need):
@@ -212,7 +232,51 @@ def get_recommendations(unmet_need):
 
 
 # =====================================================
-# CREATE COLUMNS
+# THEME TO UNMET NEED MAPPING
+# =====================================================
+
+def theme_to_need(theme_name):
+
+    if theme_name == "Access & Reimbursement":
+        return "Access Barriers"
+
+    elif theme_name == "Diagnosis Journey":
+        return "Healthcare System Friction"
+
+    elif theme_name == "Caregiver Burden":
+        return "Emotional Burden"
+
+    elif theme_name == "Treatment Limitations":
+        return "Treatment Limitations"
+
+    elif theme_name == "Treatment Experience":
+        return "Treatment Limitations"
+
+    elif theme_name == "Disease Education":
+        return "Healthcare System Friction"
+
+    else:
+        return "Further Review Needed"
+
+
+# =====================================================
+# PRIORITY SCORING
+# =====================================================
+
+def calculate_priority(priority_score):
+
+    if priority_score >= 12:
+        return "🔴 High"
+
+    elif priority_score >= 6:
+        return "🟡 Medium"
+
+    else:
+        return "🟢 Opportunity"
+
+
+# =====================================================
+# CREATE CLASSIFICATION COLUMNS
 # =====================================================
 
 df["theme"] = df["text"].apply(classify_theme)
@@ -246,7 +310,7 @@ for disease, tab in zip(
 
         disease_df = df[
             df["disease"] == disease
-        ]
+        ].copy()
 
         themes = (
             disease_df[
@@ -265,18 +329,21 @@ for disease, tab in zip(
         )
 
         if len(themes) == 0:
-            st.warning("No themes identified.")
+            st.warning("No themes identified for this therapeutic area.")
             continue
 
         if len(needs) == 0:
-            st.warning("No unmet needs identified.")
+            st.warning("No unmet needs identified for this therapeutic area.")
             continue
+
+        # =====================================================
+        # TOP SUMMARY
+        # =====================================================
 
         top_theme = themes.idxmax()
         top_need = needs.idxmax()
 
         opportunity = get_opportunity(top_need)
-
         recommendations = get_recommendations(top_need)
 
         st.markdown(f"""
@@ -292,7 +359,7 @@ for disease, tab in zip(
 
         st.info(
             f"""
-The dominant conversation theme is **{top_theme}**.
+The dominant conversation theme for **{disease}** is **{top_theme}**.
 
 The leading unmet need is **{top_need}**.
 
@@ -316,29 +383,29 @@ This suggests a patient engagement opportunity focused on **{opportunity}**.
 
         for theme_name, count in themes.items():
 
+            theme_posts = disease_df[
+                disease_df["theme"] == theme_name
+            ]
+
             negative_posts = len(
-                disease_df[
-                    (disease_df["theme"] == theme_name)
-                    &
-                    (disease_df["sentiment"] == "Negative")
+                theme_posts[
+                    theme_posts["sentiment"] == "Negative"
                 ]
             )
 
             priority_score = count + (negative_posts * 2)
 
-            if priority_score >= 12:
-                priority = "🔴 High"
-            elif priority_score >= 6:
-                priority = "🟡 Medium"
-            else:
-                priority = "🟢 Opportunity"
+            priority = calculate_priority(priority_score)
+
+            need = theme_to_need(theme_name)
 
             priority_rows.append({
                 "Theme": theme_name,
                 "Mentions": count,
                 "Negative Posts": negative_posts,
                 "Priority Score": priority_score,
-                "Priority": priority
+                "Priority": priority,
+                "Patient Engagement Opportunity": get_opportunity(need)
             })
 
         priority_df = pd.DataFrame(priority_rows)
@@ -360,75 +427,80 @@ This suggests a patient engagement opportunity focused on **{opportunity}**.
             hide_index=True
         )
 
-# =====================================================
-# TOP 3 PE PRIORITIES
-# =====================================================
+        # =====================================================
+        # TOP 3 PE PRIORITIES
+        # =====================================================
 
-st.markdown("---")
+        st.markdown("---")
+        st.markdown("## 🎯 Top 3 PE Priorities")
 
-st.markdown("## 🎯 Top 3 PE Priorities")
+        top_priorities = priority_df.head(3)
 
-top_priorities = priority_df.head(3)
+        theme_descriptions = {
 
-theme_descriptions = {
+            "Access & Reimbursement":
+                "Patients are discussing treatment access, insurance coverage, reimbursement challenges, and affordability concerns.",
 
-    "Access & Reimbursement":
-        "Patients are discussing treatment access, insurance coverage, reimbursement challenges, and affordability concerns.",
+            "Diagnosis Journey":
+                "Patients are sharing experiences related to diagnosis, provider interactions, and delays in reaching a diagnosis.",
 
-    "Diagnosis Journey":
-        "Patients are sharing experiences related to diagnosis, provider interactions, and delays in reaching a diagnosis.",
+            "Treatment Experience":
+                "Patients are discussing treatment effectiveness, daily management, and overall treatment experiences.",
 
-    "Treatment Experience":
-        "Patients are discussing treatment effectiveness, daily management, and overall treatment experiences.",
+            "Treatment Limitations":
+                "Patients are discussing side effects, treatment burden, and limitations associated with current therapies.",
 
-    "Treatment Limitations":
-        "Patients are discussing side effects, treatment burden, and limitations associated with current therapies.",
+            "Caregiver Burden":
+                "Caregivers are discussing family impact, emotional burden, and disease management responsibilities.",
 
-    "Caregiver Burden":
-        "Caregivers are discussing family impact, emotional burden, and disease management responsibilities.",
+            "Disease Education":
+                "Patients are seeking information, awareness resources, and educational support."
+        }
 
-    "Disease Education":
-        "Patients are seeking information, awareness resources, and educational support."
-}
+        for _, row in top_priorities.iterrows():
 
-for _, row in top_priorities.iterrows():
+            theme_name = row["Theme"]
 
-    theme_name = row["Theme"]
+            theme_posts = disease_df[
+                disease_df["theme"] == theme_name
+            ]
 
-    theme_posts = disease_df[
-        disease_df["theme"] == theme_name
-    ]
+            if len(theme_posts) == 0:
+                continue
 
-    most_active_platform = (
-        theme_posts["platform"]
-        .value_counts()
-        .idxmax()
-    )
+            most_active_platform = (
+                theme_posts["platform"]
+                .value_counts()
+                .idxmax()
+            )
 
-    example_posts = (
-        theme_posts["text"]
-        .head(3)
-        .tolist()
-    )
+            example_posts = (
+                theme_posts["text"]
+                .head(3)
+                .tolist()
+            )
 
-    st.markdown(
-        f"### {row['Priority']} Priority #{row['Rank']}: {theme_name}"
-    )
+            need = theme_to_need(theme_name)
+            pe_opportunity = get_opportunity(need)
 
-    st.markdown("#### What the Community is Saying")
+            st.markdown(
+                f"### {row['Priority']} Priority #{row['Rank']}: {theme_name}"
+            )
 
-    st.write(
-        theme_descriptions.get(
-            theme_name,
-            "Community discussion identified."
-        )
-    )
+            st.markdown("#### What the Community is Saying")
 
-    st.markdown("#### Why This Matters")
+            st.write(
+                theme_descriptions.get(
+                    theme_name,
+                    "Community discussion identified."
+                )
+            )
 
-    st.info(
-        f"""
-This theme appeared in **{row['Mentions']} conversations**.
+            st.markdown("#### Why This Matters")
+
+            st.info(
+                f"""
+This theme appeared in **{row['Mentions']} {disease} conversations**.
 
 **{row['Negative Posts']} conversations** were classified as negative sentiment.
 
@@ -436,38 +508,15 @@ Most discussion activity occurred on **{most_active_platform}**.
 
 Priority Score: **{row['Priority Score']}**
 """
-    )
+            )
 
-    st.markdown("#### Example Community Conversations")
+            st.markdown("#### Example Community Conversations")
 
-    for post in example_posts:
-        st.write(f"• {post}")
+            for post in example_posts:
+                st.write(f"• {post}")
 
-    if theme_name == "Access & Reimbursement":
-        need = "Access Barriers"
+            st.markdown("#### Suggested Patient Engagement Opportunity")
 
-    elif theme_name == "Diagnosis Journey":
-        need = "Healthcare System Friction"
+            st.success(pe_opportunity)
 
-    elif theme_name == "Caregiver Burden":
-        need = "Emotional Burden"
-
-    elif theme_name == "Treatment Limitations":
-        need = "Treatment Limitations"
-
-    elif theme_name == "Treatment Experience":
-        need = "Treatment Limitations"
-
-    elif theme_name == "Disease Education":
-        need = "Healthcare System Friction"
-
-    else:
-        need = "Further Review Needed"
-
-    st.markdown("#### Suggested Patient Engagement Opportunity")
-
-    st.success(
-        get_opportunity(need)
-    )
-
-    st.markdown("")
+            st.markdown("")
